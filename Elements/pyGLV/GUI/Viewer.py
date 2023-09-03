@@ -19,7 +19,7 @@ from sys import platform
 
 import sdl2
 import sdl2.ext
-from sdl2.keycode import SDLK_ESCAPE
+from sdl2.keycode import SDLK_ESCAPE,SDLK_w
 from sdl2.video import SDL_WINDOWPOS_CENTERED, SDL_WINDOW_ALLOW_HIGHDPI
 import OpenGL.GL as gl
 from OpenGL.GL import shaders
@@ -1021,74 +1021,84 @@ class ImGUIecssDecorator(ImGUIDecorator):
             #keyboard events
             if event.type == sdl2.SDL_KEYDOWN:
                 
-                if event.key.keysym.sym == sdl2.SDLK_UP or event.key.keysym.sym == sdl2.SDLK_w :
-                    pass
-                if event.key.keysym.sym == sdl2.SDLK_DOWN or event.key.keysym.sym == sdl2.SDLK_s :
-                    pass
-                if event.key.keysym.sym == sdl2.SDLK_LEFT or event.key.keysym.sym == sdl2.SDLK_a :
-                    pass
-                if event.key.keysym.sym == sdl2.SDLK_RIGHT or event.key.keysym.sym == sdl2.SDLK_d :
-                    pass
+                # if event.key.keysym.sym == sdl2.SDLK_UP or event.key.keysym.sym == sdl2.SDLK_w :
+                #     pass
+                # if event.key.keysym.sym == sdl2.SDLK_DOWN or event.key.keysym.sym == sdl2.SDLK_s :
+                #     pass
+                # if event.key.keysym.sym == sdl2.SDLK_LEFT or event.key.keysym.sym == sdl2.SDLK_a :
+                #     pass
+                # if event.key.keysym.sym == sdl2.SDLK_RIGHT or event.key.keysym.sym == sdl2.SDLK_d :
+                #     pass
                 ##################  toggle the wireframe using the alt+F buttons  #############################
                 if (event.key.keysym.sym == sdl2.SDLK_f and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
                     self.toggle_Wireframe()
-                ################# + translate on x axis when node is selected using Q ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_q and self.selected):
-                    self.translation["x"] -= 0.1
-                ################# - translate on x axis when node is selected using Q+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_q and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.translation["x"] += 0.1
-                ################# + translate on y axis when node is selected using w ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_w and self.selected):
-                    self.translation["y"] += 0.1 
-                ################# - translate on y axis when node is selected using w+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_w and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.translation["y"] -= 0.1
-                ################# + translate on z axis when node is selected using E ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_e and self.selected):
-                    self.translation["z"] += 0.1
-                ################# - translate on z axis when node is selected using E+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_e and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.translation["z"] -= 0.1
+                
+                ########## shortcuts for selected node from the tree ###########
+                if self.selected:
+                    ################# - translate on x axis when node is selected using W+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_w and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.translation["x"] -= 0.1
+                    ################# + translate on x axis when node is selected using W ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_w):
+                        self.translation["x"] += 0.1
+                    
+                    # ################# - translate on y axis when node is selected using E+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_e and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.translation["y"] -= 0.1
+                    ################# + translate on y axis when node is selected using E ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_e):
+                        self.translation["y"] += 0.1 
+                    
+                    # ################# - translate on z axis when node is selected using R+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_r and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.translation["z"] -= 0.1
+                    # ################# + translate on z axis when node is selected using R ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_r):
+                        self.translation["z"] += 0.1
+                    
 
-                ################# + rotate on x axis when node is selected using A ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_a and self.selected):
-                    self.rotation["x"] += 0.1
-                ################# - rotate on x axis when node is selected using A+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_a and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.rotation["x"] -= 0.1
-                ################# + rotate on y axis when node is selected using S ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_s and self.selected):
-                    self.rotation["y"] += 0.1 
-                ################# - rotate on y axis when node is selected using S+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_s and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.rotation["y"] -= 0.1
-                ################# + rotate on z axis when node is selected using D ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_d and self.selected):
-                    self.rotation["z"] += 0.1
-                ################# - rotate on z axis when node is selected using D+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_d and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.rotation["z"] -= 0.1
-
-                ################# scale up on x axis when node is selected using Z ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_z and self.selected):
-                    self.scale["x"] += 0.1
-                ################# scale down on x axis when node is selected using Z+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_z and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.scale["x"] -= 0.1
-                ################# scale up on y axis when node is selected using X ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_x and self.selected):
-                    self.scale["y"] += 0.1 
-                ################# scale down on y axis when node is selected using X+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_x and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.scale["y"] -= 0.1
-                ################# scale up on z axis when node is selected using C ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_c and self.selected):
-                    self.scale["z"] += 0.1
-                ################# scale down on z axis when node is selected using C+alt ###########################
-                if(event.key.keysym.sym == sdl2.SDLK_c and self.selected and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
-                    self.scale["z"] -= 0.1
-
+                    # ################# - rotate on x axis when node is selected using T+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_t and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.rotation["x"] -= 0.1
+                    # ################# + rotate on x axis when node is selected using T ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_t):
+                        self.rotation["x"] += 0.1
+                    
+                    # ################# - rotate on y axis when node is selected using Y+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_y and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.rotation["y"] -= 0.1
+                    # ################# + rotate on y axis when node is selected using Y ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_y):
+                        self.rotation["y"] += 0.1 
+                    
+                    # ################# - rotate on z axis when node is selected using U+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_u and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.rotation["z"] -= 0.1
+                    # ################# + rotate on z axis when node is selected using U ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_u):
+                        self.rotation["z"] += 0.1
+                    
+                    ################# scale down on x axis when node is selected using I+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_i  and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.scale["x"] -= 0.1
+                    ################# scale up on x axis when node is selected using I ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_i ):
+                        self.scale["x"] += 0.1
+                    
+                    ################# scale down on y axis when node is selected using O+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_o  and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.scale["y"] -= 0.1
+                    ################# scale up on y axis when node is selected using O ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_o ):
+                        self.scale["y"] += 0.1 
+                    
+                    ################# scale down on z axis when node is selected using P+alt ###########################
+                    if(event.key.keysym.sym == sdl2.SDLK_p  and (sdl2.SDL_GetModState() & sdl2.KMOD_ALT)):
+                        self.scale["z"] -= 0.1
+                    ################# scale up on z axis when node is selected using P ###########################
+                    elif(event.key.keysym.sym == sdl2.SDLK_p ):
+                        self.scale["z"] += 0.1
+                    
                 if event.key.keysym.sym == sdl2.SDLK_LCTRL:
                     self.lctrl=True
                 if event.key.keysym.sym == sdl2.SDLK_ESCAPE:
