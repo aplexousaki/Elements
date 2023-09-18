@@ -422,7 +422,12 @@ class ImGUIDecorator(RenderDecorator):
 
         ########## Added bool variable to enable to close the imgui window ###############
         self.showElementsWindow = True
-       
+        
+        self.openWindows = [] 
+
+        self.collapseElementsWindow = True
+        self.collapseShortcutsWindow = True
+        self.collapseScenegraphVisualizer = True
     def init(self):
         """
         Calls Decoratee init() and also sets up events
@@ -499,8 +504,11 @@ class ImGUIDecorator(RenderDecorator):
         ########## Added bool variable to enable to close the imgui window ###############
         if  self.showElementsWindow:
             #new custom imgui window
-            _, self.showElementsWindow = imgui.begin("Elements ImGUI window", True)
-    
+            imgui.core.set_next_window_collapsed(not self.collapseElementsWindow)
+            self.collapseElementsWindow, self.showElementsWindow = imgui.begin("Elements ImGUI window", True)
+            
+            if "Elements ImGUI window" not in self.openWindows:
+                self.openWindows.append("Elements ImGUI window")
             #labels inside the window
             imgui.text("PyImgui + PySDL2 integration successful!")
             imgui.text(self._wrapeeWindow._gVersionLabel)
@@ -611,7 +619,10 @@ class ImGUIDecorator(RenderDecorator):
             # Add a "Shortcuts" submenu
             if imgui.menu_item("Shortcuts")[1]:
                 self.show_shortcuts_window = True               
-   
+            if imgui.menu_item("Collapse Windows")[1]:
+                self.collapseElementsWindow = False
+                self.collapseShortcutsWindow = False
+                self.collapseScenegraphVisualizer = False
             imgui.end_menu()
         # End the main menu bar
         imgui.end_main_menu_bar()
@@ -645,7 +656,7 @@ class ImGUIecssDecorator(ImGUIDecorator):
         
         self.traverseCamera()
         self.show_shortcuts_window = False
-        self.guiHovered = False
+        
 
     def drawNode(self, node, display_name=None):
         if display_name is None or node.name == display_name:
@@ -663,9 +674,11 @@ class ImGUIecssDecorator(ImGUIDecorator):
 
         twoColumn = False
 
+        imgui.core.set_next_window_collapsed(not self.collapseScenegraphVisualizer)
+
         if twoColumn:
             # 2 Column Version
-            imgui.begin("ECSS graph")
+            self.collapseScenegraphVisualizer, _ = imgui.begin("ECSS graph")
             imgui.columns(2, "Properties")
             if imgui.tree_node(sceneRoot, imgui.TREE_NODE_OPEN_ON_ARROW):
                 self.drawNode(self.wrapeeWindow.scene.world.root)
@@ -674,7 +687,7 @@ class ImGUIecssDecorator(ImGUIDecorator):
             imgui.text("Properties")
             imgui.separator()
         else:
-            imgui.begin("ECSS graph")
+            self.collapseScenegraphVisualizer, _ = imgui.begin("ECSS graph")
             imgui.columns(1, "Properties")
             # below is a recursive call to build-up the whole scenegraph as ImGUI tree
             # if imgui.tree_node(sceneRoot, imgui.TREE_NODE_OPEN_ON_ARROW):
@@ -777,7 +790,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
     ###### Shortcuts gui #######
     def shortcutsGUI(self):
         if self.show_shortcuts_window:
-            _, self.show_shortcuts_window = imgui.begin("Shortcuts", True)
+            imgui.core.set_next_window_collapsed(not self.collapseShortcutsWindow)
+            self.collapseShortcutsWindow, self.show_shortcuts_window = imgui.begin("Shortcuts", True)
             imgui.text("List of shortcuts:")
             
             imgui.bullet_text("Toggle Wireframe                 Alt+F")
@@ -1020,16 +1034,16 @@ class ImGUIecssDecorator(ImGUIDecorator):
         for event in events:
             
             if event.type == sdl2.SDL_MOUSEWHEEL:
-                # Check if the mouse is hovering over an ImGui window
-                if self.guiHovered:
-                    # Handle scrolling within the ImGui window
-                    self.handle_imgui_scroll(event.wheel.x, event.wheel.y)
-                    continue
-                else:
-                    x = event.wheel.x
-                    y = event.wheel.y
-                    self.cameraHandling(x,y,height,width)
-                    continue   
+                # # Check if the mouse is hovering over an ImGui window
+                # if self.guiHovered:
+                #     # Handle scrolling within the ImGui window
+                #     self.handle_imgui_scroll(event.wheel.x, event.wheel.y)
+                #     continue
+                # else:
+                x = event.wheel.x
+                y = event.wheel.y
+                self.cameraHandling(x,y,height,width)
+                continue   
 
             if event.type == sdl2.SDL_MOUSEBUTTONUP:
                 pass
