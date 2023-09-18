@@ -419,6 +419,9 @@ class ImGUIDecorator(RenderDecorator):
         self._eye = (2.5, 2.5, 2.5)
         self._target = (0.0, 0.0, 0.0) 
         self._up = (0.0, 1.0, 0.0)
+
+        ########## Added bool variable to enable to close the imgui window ###############
+        self.showElementsWindow = True
        
     def init(self):
         """
@@ -467,6 +470,7 @@ class ImGUIDecorator(RenderDecorator):
         self.shortcutsGUI()
                 #draw scenegraph tree widget
         self.scenegraphVisualiser()
+
         #print(f'{self.getClassName()}: display()')
         
     def display_post(self):
@@ -491,79 +495,83 @@ class ImGUIDecorator(RenderDecorator):
         imgui.new_frame()
         #demo ImGUI window with all widgets
         # imgui.show_test_window()
-        #new custom imgui window
-        imgui.begin("Elements ImGUI window", True)
-        #labels inside the window
-        imgui.text("PyImgui + PySDL2 integration successful!")
-        imgui.text(self._wrapeeWindow._gVersionLabel)
-        
-        # populate window with extra UI elements
-        imgui.separator()
-        imgui.new_line()
-        #
-        # wireframe Event updates the GL state
-        self._changed, self._checkbox = imgui.checkbox("Wireframe", self._wireframeMode)
-        if self._changed:
-            if self._checkbox is True:
-                self._wireframeMode = True
-                self._updateWireframe.value = self._wireframeMode
-                if self._wrapeeWindow.eventManager is not None:
-                    self.wrapeeWindow.eventManager.notify(self, self._updateWireframe) 
-                print(f"wireframe: {self._wireframeMode}")
-            if self._checkbox is False:
-                self._wireframeMode = False
-                self._updateWireframe.value = self._wireframeMode
-                if self._wrapeeWindow.eventManager is not None:
-                    self.wrapeeWindow.eventManager.notify(self, self._updateWireframe) 
-                print(f"wireframe: {self._wireframeMode}")
-        #
-        # simple slider for color
-        if imgui.tree_node("Color edit", imgui.TREE_NODE_OPEN_ON_ARROW):
-            self._changed, self._colorEditor = imgui.color_edit3("", *self._colorEditor)
+
+        ########## Added bool variable to enable to close the imgui window ###############
+        if  self.showElementsWindow:
+            #new custom imgui window
+            _, self.showElementsWindow = imgui.begin("Elements ImGUI window", True)
+    
+            #labels inside the window
+            imgui.text("PyImgui + PySDL2 integration successful!")
+            imgui.text(self._wrapeeWindow._gVersionLabel)
+            
+            # populate window with extra UI elements
+            imgui.separator()
+            imgui.new_line()
+            #
+            # wireframe Event updates the GL state
+            self._changed, self._checkbox = imgui.checkbox("Wireframe", self._wireframeMode)
             if self._changed:
-                print(f"_colorEditor: {self._colorEditor}")
-            imgui.tree_pop()
-        imgui.separator()
-        #
-        # START
-        if imgui.tree_node("TRS", imgui.TREE_NODE_OPEN_ON_ARROW):
-            # simple slider for eye - IMPORTANT PART HERE
-            self._changed, self._eye = imgui.drag_float3( "Eye", *self._eye, change_speed = 0.01, min_value=-10, max_value=10,format="%.3f")
-            if self._changed:
-                self._updateCamera.value = util.lookat(util.vec(self._eye), util.vec(self._target), util.vec(self._up))
-                print ("NEW CAMERA VALUE", self._updateCamera.value)
-                if self._wrapeeWindow.eventManager is not None:
-                        self.wrapeeWindow.eventManager.notify(self, self._updateCamera)
-                print(f"_eye: {self._eye}")
+                if self._checkbox is True:
+                    self._wireframeMode = True
+                    self._updateWireframe.value = self._wireframeMode
+                    if self._wrapeeWindow.eventManager is not None:
+                        self.wrapeeWindow.eventManager.notify(self, self._updateWireframe) 
+                    print(f"wireframe: {self._wireframeMode}")
+                if self._checkbox is False:
+                    self._wireframeMode = False
+                    self._updateWireframe.value = self._wireframeMode
+                    if self._wrapeeWindow.eventManager is not None:
+                        self.wrapeeWindow.eventManager.notify(self, self._updateWireframe) 
+                    print(f"wireframe: {self._wireframeMode}")
+            #
+            # simple slider for color
+            if imgui.tree_node("Color edit", imgui.TREE_NODE_OPEN_ON_ARROW):
+                self._changed, self._colorEditor = imgui.color_edit3("", *self._colorEditor)
+                if self._changed:
+                    print(f"_colorEditor: {self._colorEditor}")
+                imgui.tree_pop()
             imgui.separator()
             #
-            # simple slider for target
-            self._changed, self._target = imgui.drag_float3( "Target", *self._target, change_speed = 0.01, min_value=-10, max_value=10,format="%.3f")
-            if self._changed:
-                self._updateCamera.value = util.lookat(util.vec(self._eye), util.vec(self._target), util.vec(self._up))
-                print ("NEW CAMERA VALUE", self._updateCamera.value)
-                if self._wrapeeWindow.eventManager is not None:
-                    self.wrapeeWindow.eventManager.notify(self, self._updateCamera)
-                print(f"_target: {self._target}")
+            # START
+            if imgui.tree_node("TRS", imgui.TREE_NODE_OPEN_ON_ARROW):
+                # simple slider for eye - IMPORTANT PART HERE
+                self._changed, self._eye = imgui.drag_float3( "Eye", *self._eye, change_speed = 0.01, min_value=-10, max_value=10,format="%.3f")
+                if self._changed:
+                    self._updateCamera.value = util.lookat(util.vec(self._eye), util.vec(self._target), util.vec(self._up))
+                    print ("NEW CAMERA VALUE", self._updateCamera.value)
+                    if self._wrapeeWindow.eventManager is not None:
+                            self.wrapeeWindow.eventManager.notify(self, self._updateCamera)
+                    print(f"_eye: {self._eye}")
+                imgui.separator()
+                #
+                # simple slider for target
+                self._changed, self._target = imgui.drag_float3( "Target", *self._target, change_speed = 0.01, min_value=-10, max_value=10,format="%.3f")
+                if self._changed:
+                    self._updateCamera.value = util.lookat(util.vec(self._eye), util.vec(self._target), util.vec(self._up))
+                    print ("NEW CAMERA VALUE", self._updateCamera.value)
+                    if self._wrapeeWindow.eventManager is not None:
+                        self.wrapeeWindow.eventManager.notify(self, self._updateCamera)
+                    print(f"_target: {self._target}")
+                imgui.separator()
+                # simple slider for up
+                self._changed, self._up = imgui.drag_float3( "Up", *self._up, change_speed = 0.01 ,min_value=-5, max_value=5,format="%.3f")
+                if self._changed:
+                    self._updateCamera.value = util.lookat(util.vec(self._eye), util.vec(self._target), util.vec(self._up))
+                    print ("NEW CAMERA VALUE", self._updateCamera.value)
+                    if self._wrapeeWindow.eventManager is not None:
+                        self.wrapeeWindow.eventManager.notify(self, self._updateCamera)
+                    print(f"_up: {self._up}")
+                imgui.tree_pop()
             imgui.separator()
-            # simple slider for up
-            self._changed, self._up = imgui.drag_float3( "Up", *self._up, change_speed = 0.01 ,min_value=-5, max_value=5,format="%.3f")
-            if self._changed:
-                self._updateCamera.value = util.lookat(util.vec(self._eye), util.vec(self._target), util.vec(self._up))
-                print ("NEW CAMERA VALUE", self._updateCamera.value)
-                if self._wrapeeWindow.eventManager is not None:
-                    self.wrapeeWindow.eventManager.notify(self, self._updateCamera)
-                print(f"_up: {self._up}")
-            imgui.tree_pop()
-        imgui.separator()
-        # END
-        # simple FPS counter
-        if imgui.tree_node("FPS", imgui.TREE_NODE_OPEN_ON_ARROW):
-            strFrameRate = str(("Application average: ", imgui.get_io().framerate, " FPS"))
-            imgui.text(strFrameRate)
-            imgui.tree_pop()
-        #end imgui frame context
-        imgui.end()
+            # END
+            # simple FPS counter
+            if imgui.tree_node("FPS", imgui.TREE_NODE_OPEN_ON_ARROW):
+                strFrameRate = str(("Application average: ", imgui.get_io().framerate, " FPS"))
+                imgui.text(strFrameRate)
+                imgui.tree_pop()
+            #end imgui frame context
+            imgui.end()
         
         #print(f'{self.getClassName()}: extra()')
     
@@ -598,18 +606,18 @@ class ImGUIDecorator(RenderDecorator):
             
             imgui.end_menu()
 
-        # Create the "Help" dropdown menu
-        # Add a "Help" menu
-        if imgui.begin_menu("Help"):
+        # Create the "View" dropdown menu
+        if imgui.begin_menu("View"):
             # Add a "Shortcuts" submenu
             if imgui.menu_item("Shortcuts")[1]:
                 self.show_shortcuts_window = True               
-            # End the "Help" menu
+   
             imgui.end_menu()
         # End the main menu bar
         imgui.end_main_menu_bar()
 
 class ImGUIecssDecorator(ImGUIDecorator):
+    
     """custom ImGUI decorator for this example
 
     :param ImGUIDecorator: [description]
@@ -619,6 +627,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
         super().__init__(wrapee, imguiContext)
         self.selected = None; # Selected should be a component
 
+        self.io = imgui.get_io()
+        
         # TRS Variables 
         self.translation = {};
         self.translation["x"] = 0; self.translation["y"] = 0; self.translation["z"] = 0; 
@@ -635,6 +645,7 @@ class ImGUIecssDecorator(ImGUIDecorator):
         
         self.traverseCamera()
         self.show_shortcuts_window = False
+        self.guiHovered = False
 
     def drawNode(self, node, display_name=None):
         if display_name is None or node.name == display_name:
@@ -762,8 +773,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
     
     ###### Shortcuts gui #######
     def shortcutsGUI(self):
-        if(self.show_shortcuts_window == True):
-            imgui.begin("Shortcuts", True)
+        if self.show_shortcuts_window:
+            _, self.show_shortcuts_window = imgui.begin("Shortcuts", True)
             imgui.text("List of shortcuts:")
             
             imgui.bullet_text("Toggle Wireframe                 Alt+F")
@@ -985,6 +996,11 @@ class ImGUIecssDecorator(ImGUIDecorator):
         self._updateWireframe.value = self._wireframeMode
         self.wrapeeWindow.eventManager.notify(self, self._updateWireframe)
 
+    def handle_imgui_scroll(self,x,y):
+        self._wireframeMode = not self._wireframeMode
+        self._updateWireframe.value = self._wireframeMode
+        self.wrapeeWindow.eventManager.notify(self, self._updateWireframe)
+
     def event_input_process(self):
         """
         process SDL2 basic events and input
@@ -1001,10 +1017,16 @@ class ImGUIecssDecorator(ImGUIDecorator):
         for event in events:
             
             if event.type == sdl2.SDL_MOUSEWHEEL:
-                x = event.wheel.x
-                y = event.wheel.y
-                self.cameraHandling(x,y,height,width)
-                continue   
+                # Check if the mouse is hovering over an ImGui window
+                if self.guiHovered:
+                    # Handle scrolling within the ImGui window
+                    self.handle_imgui_scroll(event.wheel.x, event.wheel.y)
+                    continue
+                else:
+                    x = event.wheel.x
+                    y = event.wheel.y
+                    self.cameraHandling(x,y,height,width)
+                    continue   
 
             if event.type == sdl2.SDL_MOUSEBUTTONUP:
                 pass
