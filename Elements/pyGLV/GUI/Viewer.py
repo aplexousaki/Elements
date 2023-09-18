@@ -688,7 +688,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
         # TRS sample
         # if(isinstance(self.selected, BasicTransform)):
 
-        if imgui.tree_node("Translation", imgui.TREE_NODE_DEFAULT_OPEN):
+        if imgui.tree_node("Translation", imgui.TREE_NODE_LEAF):
+            imgui.same_line() 
             # changed, value = imgui.slider_float("X", self.translation["x"], -3, 3, "%.01f", 1);
             # self.translation["x"] = value;
             # changed, value = imgui.slider_float("Y", self.translation["y"], -3, 3, "%.01f", 1);
@@ -712,7 +713,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
                 value[2],
             )
             imgui.tree_pop()
-        if imgui.tree_node("Rotation", imgui.TREE_NODE_DEFAULT_OPEN):
+        if imgui.tree_node("Rotation   ", imgui.TREE_NODE_LEAF):
+            imgui.same_line() 
             # changed, value = imgui.slider_float("X", self.rotation["x"], -90, 90, "%.1f", 1);
             # self.rotation["x"] = value;
             # changed, value = imgui.slider_float("Y", self.rotation["y"], -90, 90, "%.1f", 1);
@@ -736,7 +738,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
                 value[2],
             )
             imgui.tree_pop()
-        if imgui.tree_node("Scale", imgui.TREE_NODE_DEFAULT_OPEN):
+        if imgui.tree_node("Scale      ", imgui.TREE_NODE_LEAF):
+            imgui.same_line() 
             # changed, value = imgui.slider_float("X", self.scale["x"], 0, 3, "%.01f", 1);
             # self.scale["x"] = value;
             # changed, value = imgui.slider_float("Y", self.scale["y"], 0, 3, "%.01f", 1);
