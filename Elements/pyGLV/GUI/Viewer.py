@@ -618,7 +618,9 @@ class ImGUIDecorator(RenderDecorator):
         if imgui.begin_menu("View"):
             # Add a "Shortcuts" submenu
             if imgui.menu_item("Shortcuts")[1]:
-                self.show_shortcuts_window = True               
+                self.show_shortcuts_window = True   
+            if imgui.menu_item("Elements ImGUI Window")[1]:
+                self.showElementsWindow = True           
             if imgui.menu_item("Collapse Windows")[1]:
                 self.collapseElementsWindow = False
                 self.collapseShortcutsWindow = False
