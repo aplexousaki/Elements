@@ -125,9 +125,9 @@ class SDL2Window(RenderWindow):
         self._gVersionLabel = "None"
 
         self.openGLversion = openGLversion
-        
+
         if windowWidth is None:
-            self._windowWidth = 1024
+           self. _windowWidth = 1024
         else:
             self._windowWidth = windowWidth
         
@@ -422,12 +422,22 @@ class ImGUIDecorator(RenderDecorator):
 
         ########## Added bool variable to enable to close the imgui window ###############
         self.showElementsWindow = True
-        
+        self.elements_x = 10
+        self.elements_y = 200
+        self.show_shortcuts_window = False
+        self.shortcuts_x = 10
+        self.shortcuts_y = 400
+
+        self.graph_x = 560
+        self.graph_y = 30
+
         self.openWindows = [] 
 
         self.collapseElementsWindow = True
         self.collapseShortcutsWindow = True
         self.collapseScenegraphVisualizer = True
+
+
     def init(self):
         """
         Calls Decoratee init() and also sets up events
@@ -495,7 +505,7 @@ class ImGUIDecorator(RenderDecorator):
         """sample ImGUI widgets to be rendered on a RenderWindow
         """
         imgui.set_next_window_size(300.0, 200.0)
-        
+
         #start new ImGUI frame context
         imgui.new_frame()
         #demo ImGUI window with all widgets
@@ -506,7 +516,16 @@ class ImGUIDecorator(RenderDecorator):
             #new custom imgui window
             imgui.core.set_next_window_collapsed(not self.collapseElementsWindow)
             self.collapseElementsWindow, self.showElementsWindow = imgui.begin("Elements ImGUI window", True)
-            
+            if "ElementsWindow" not in self.openWindows:
+                self.openWindows.append("ElementsWindow")
+
+            ###### do this so we can be able to move the window after it was collapsed #########
+            #######                         and we re open it                           #########
+            if self.collapseElementsWindow:
+                imgui.set_window_position(self.elements_x,self.elements_y,imgui.ONCE)
+            else:
+                imgui.set_window_position(self.elements_x,self.elements_y)
+
             if "Elements ImGUI window" not in self.openWindows:
                 self.openWindows.append("Elements ImGUI window")
             #labels inside the window
@@ -534,7 +553,7 @@ class ImGUIDecorator(RenderDecorator):
                     print(f"wireframe: {self._wireframeMode}")
             #
             # simple slider for color
-            if imgui.tree_node("Color edit", imgui.TREE_NODE_OPEN_ON_ARROW):
+            if imgui.tree_node("Background color", imgui.TREE_NODE_OPEN_ON_ARROW):
                 self._changed, self._colorEditor = imgui.color_edit3("", *self._colorEditor)
                 if self._changed:
                     print(f"_colorEditor: {self._colorEditor}")
@@ -589,12 +608,78 @@ class ImGUIDecorator(RenderDecorator):
         """
         pass
         
-        
     def accept(self, system: Elements.pyECSS.System, event = None):
         system.apply2ImGUIDecorator(self, event)
 
+    def align_windows_bottom_left(self):
+        #to-do:  replace with screen width and height
+        screen_width = 1024
+        screen_height = 850
+
+        #to-do:  dynamically count open windows - for now manually as 4 
+        total_height = 4 * 20
+       
+        starting_y = screen_height - total_height
+
+        self.elements_x = 10
+        self.elements_y = starting_y
+
+        starting_y += 20
+
+        if self.show_shortcuts_window:
+            self.shortcuts_x = 10
+            self.shortcuts_y = starting_y
+            starting_y += 20
+
+        self.graph_x = 10
+        self.graph_y = starting_y
+        
+
+
+
     def shortcutsGUI(self):
-        pass
+        if self.show_shortcuts_window:
+            imgui.core.set_next_window_collapsed(not self.collapseShortcutsWindow)
+            self.collapseShortcutsWindow, self.show_shortcuts_window = imgui.begin("Shortcuts", True)
+            if "Shortcuts" not in self.openWindows:
+                self.openWindows.append("Shortcuts")
+
+            ###### do this so we can be able to move the window after it was collapsed #########
+            #######                         and we re open it                           #########
+            if self.collapseShortcutsWindow:
+                imgui.set_window_position(self.shortcuts_x,self.shortcuts_y,imgui.ONCE)
+            else:
+                imgui.set_window_position(self.shortcuts_x,self.shortcuts_y)
+
+            imgui.text("List of shortcuts:")
+            
+            imgui.bullet_text("Toggle Wireframe                 Alt+F")
+            imgui.bullet_text("Vertical Scroll:                 Vertical camera translate")
+            imgui.bullet_text("Horizontal Scroll:               Vertical camera translate")
+            
+            imgui.text("When node is selected:")
+            #with imgui.indent():
+            imgui.bullet_text("Positive translation on x-axis   W")
+            imgui.bullet_text("Negative translation on x-axis   Alt+W")
+            imgui.bullet_text("Positive translation on y-axis   E")
+            imgui.bullet_text("Negative translation on y-axis   Alt+E")
+            imgui.bullet_text("Positive translation on z-axis   R")
+            imgui.bullet_text("Negative translation on z-axis   Alt+R")
+
+            imgui.bullet_text("Positive rotation on x-axis      T")
+            imgui.bullet_text("Negative rotation on x-axis      Alt+T")
+            imgui.bullet_text("Positive rotation on y-axis      Y")
+            imgui.bullet_text("Negative rotation on y-axis      Alt+Y")
+            imgui.bullet_text("Positive rotation on z-axis      U")
+            imgui.bullet_text("Negative rotation on z-axis      Alt+U")
+
+            imgui.bullet_text("Scale up on x-axis               I")
+            imgui.bullet_text("Scale down on x-axis             Alt+I")
+            imgui.bullet_text("Scale up on y-axis               O")
+            imgui.bullet_text("Scale down on y-axis             Alt+O")
+            imgui.bullet_text("Scale up on z-axis               P")
+            imgui.bullet_text("Scale down on z-axis             Alt+P")
+            imgui.end()
     ######  MENU BAR #########
     def menuBar(self):
         # Create the header bar
@@ -625,6 +710,7 @@ class ImGUIDecorator(RenderDecorator):
                 self.collapseElementsWindow = False
                 self.collapseShortcutsWindow = False
                 self.collapseScenegraphVisualizer = False
+                self.align_windows_bottom_left()
             imgui.end_menu()
         # End the main menu bar
         imgui.end_main_menu_bar()
@@ -657,7 +743,6 @@ class ImGUIecssDecorator(ImGUIDecorator):
         self.lctrl = False
         
         self.traverseCamera()
-        self.show_shortcuts_window = False
         
 
     def drawNode(self, node, display_name=None):
@@ -681,6 +766,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
         if twoColumn:
             # 2 Column Version
             self.collapseScenegraphVisualizer, _ = imgui.begin("ECSS graph")
+            if "ECSS graph" not in self.openWindows:
+                self.openWindows.append("ECSS graph")
             imgui.columns(2, "Properties")
             if imgui.tree_node(sceneRoot, imgui.TREE_NODE_OPEN_ON_ARROW):
                 self.drawNode(self.wrapeeWindow.scene.world.root)
@@ -690,6 +777,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
             imgui.separator()
         else:
             self.collapseScenegraphVisualizer, _ = imgui.begin("ECSS graph")
+            if "ECSS graph" not in self.openWindows:
+                self.openWindows.append("ECSS graph")
             imgui.columns(1, "Properties")
             # below is a recursive call to build-up the whole scenegraph as ImGUI tree
             # if imgui.tree_node(sceneRoot, imgui.TREE_NODE_OPEN_ON_ARROW):
@@ -698,7 +787,13 @@ class ImGUIecssDecorator(ImGUIDecorator):
             # imgui.next_column()
             imgui.text("Properties")
             imgui.separator()
-
+        
+        ###### do this so we can be able to move the window after it was collapsed #########
+        #######                         and we re open it                           #########
+        if self.collapseScenegraphVisualizer:
+            imgui.set_window_position(self.graph_x,self.graph_y,imgui.ONCE)
+        else:
+            imgui.set_window_position(self.graph_x,self.graph_y)
         # smallerTRSgui = True
         # TRS sample
         # if(isinstance(self.selected, BasicTransform)):
@@ -789,40 +884,6 @@ class ImGUIecssDecorator(ImGUIDecorator):
 
         imgui.end()
     
-    ###### Shortcuts gui #######
-    def shortcutsGUI(self):
-        if self.show_shortcuts_window:
-            imgui.core.set_next_window_collapsed(not self.collapseShortcutsWindow)
-            self.collapseShortcutsWindow, self.show_shortcuts_window = imgui.begin("Shortcuts", True)
-            imgui.text("List of shortcuts:")
-            
-            imgui.bullet_text("Toggle Wireframe                 Alt+F")
-            imgui.bullet_text("Vertical Scroll:                 Vertical camera translate")
-            imgui.bullet_text("Horizontal Scroll:               Vertical camera translate")
-            
-            imgui.text("When node is selected:")
-            #with imgui.indent():
-            imgui.bullet_text("Positive translation on x-axis   W")
-            imgui.bullet_text("Negative translation on x-axis   Alt+W")
-            imgui.bullet_text("Positive translation on y-axis   E")
-            imgui.bullet_text("Negative translation on y-axis   Alt+E")
-            imgui.bullet_text("Positive translation on z-axis   R")
-            imgui.bullet_text("Negative translation on z-axis   Alt+R")
-
-            imgui.bullet_text("Positive rotation on x-axis      T")
-            imgui.bullet_text("Negative rotation on x-axis      Alt+T")
-            imgui.bullet_text("Positive rotation on y-axis      Y")
-            imgui.bullet_text("Negative rotation on y-axis      Alt+Y")
-            imgui.bullet_text("Positive rotation on z-axis      U")
-            imgui.bullet_text("Negative rotation on z-axis      Alt+U")
-
-            imgui.bullet_text("Scale up on x-axis               I")
-            imgui.bullet_text("Scale down on x-axis             Alt+I")
-            imgui.bullet_text("Scale up on y-axis               O")
-            imgui.bullet_text("Scale down on y-axis             Alt+O")
-            imgui.bullet_text("Scale up on z-axis               P")
-            imgui.bullet_text("Scale down on z-axis             Alt+P")
-            imgui.end()
             
     def drawNode(self, component):
         #create a local iterator of Entity's children
