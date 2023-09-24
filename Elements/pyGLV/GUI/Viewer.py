@@ -679,8 +679,6 @@ class ImGUIDecorator(RenderDecorator):
             # Add a "Shortcuts" submenu
             if imgui.menu_item("Example Description")[1]:
                 Shortcuts.showGUI_text = True   
-                Shortcuts.show_shortcuts_window = True   
-
             if imgui.menu_item("FAQ")[1]:
                 pass
             imgui.end_menu()
