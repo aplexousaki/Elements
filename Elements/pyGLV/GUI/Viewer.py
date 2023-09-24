@@ -34,6 +34,7 @@ from Elements.pyECSS.Component import BasicTransform
 import numpy as np
 
 import Elements.utils.Shortcuts as Shortcuts
+
 class RenderWindow(ABC):
     """
     The Abstract base class of the Viewer GUI/Display sub-system of pyglGA
@@ -107,7 +108,6 @@ class SDL2Window(RenderWindow):
     :param RenderWindow: [description]
     :type RenderWindow: [type]
     """
-    
     def __init__(self, windowWidth = None, windowHeight = None, windowTitle = None, scene = None, eventManager = None, openGLversion = 4):
         """Constructor SDL2Window for basic SDL2 parameters
 
@@ -126,16 +126,13 @@ class SDL2Window(RenderWindow):
 
         self.openGLversion = openGLversion
 
-        if windowWidth is None:
-           self. _windowWidth = 1024
-        else:
-            self._windowWidth = windowWidth
         
-        if windowHeight is None:
-            self._windowHeight = 768
-        else:
+        ### get width and height from example and store to global vars###
+        if windowWidth is not None:
+            self._windowWidth = windowWidth
+        if windowHeight is not None:
             self._windowHeight = windowHeight
-            
+    
         if windowTitle is None:
             self._windowTitle = "SDL2Window"
         else:
@@ -401,6 +398,7 @@ class ImGUIDecorator(RenderDecorator):
     :param RenderDecorator: [description]
     :type RenderDecorator: [type]
     """
+    
     def __init__(self, wrapee: RenderWindow, imguiContext = None):
         super().__init__(wrapee)
         if imguiContext is None:
@@ -610,16 +608,12 @@ class ImGUIDecorator(RenderDecorator):
     def accept(self, system: Elements.pyECSS.System, event = None):
         system.apply2ImGUIDecorator(self, event)
 
-    def align_windows_bottom_left(self):
-        #to-do:  replace with screen width and height
-        screen_width = 1024
-        screen_height = 850
-
-        #to-do:  dynamically count open windows - for now manually as 4 
-        total_height = 4 * 20
-       
-        starting_y = screen_height - total_height
-
+    ### After collapsing windows, move all windows to top left corner
+    ### Use the top corner to cover all window sizes 
+    ### since for now we dont knowt the screen height dynamically
+    def align_windows_top_left(self):
+        starting_y = 20
+        
         self.elements_x = 10
         self.elements_y = starting_y
 
@@ -671,7 +665,7 @@ class ImGUIDecorator(RenderDecorator):
                 Shortcuts.displayShortcutsGUI()
                 Shortcuts.collapseGUI_text = False
                 self.collapseScenegraphVisualizer = False
-                self.align_windows_bottom_left()
+                self.align_windows_top_left()
             imgui.end_menu()
 
         # Create the "Help" dropdown menu
@@ -692,6 +686,7 @@ class ImGUIecssDecorator(ImGUIDecorator):
     :param ImGUIDecorator: [description]
     :type ImGUIDecorator: [type]
     """
+
     def __init__(self, wrapee: RenderWindow, imguiContext = None):
         super().__init__(wrapee, imguiContext)
         self.selected = None; # Selected should be a component
@@ -1060,8 +1055,8 @@ class ImGUIecssDecorator(ImGUIDecorator):
         #width = self.wrapeeWindow._gWindow.windowWidth
         running = True
         events = sdl2.ext.get_events()
-        width = 1200    #TODO get the window width and height
-        height = 800
+        width =  1200   #TODO get the window width and height
+        height = 800 
         
 
         for event in events:
