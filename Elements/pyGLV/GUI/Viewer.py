@@ -33,7 +33,7 @@ from Elements.pyECSS.System import System
 from Elements.pyECSS.Component import BasicTransform
 import numpy as np
 
-
+import Elements.utils.Shortcuts as Shortcuts
 class RenderWindow(ABC):
     """
     The Abstract base class of the Viewer GUI/Display sub-system of pyglGA
@@ -423,10 +423,12 @@ class ImGUIDecorator(RenderDecorator):
         ########## Added bool variable to enable to close the imgui window ###############
         self.showElementsWindow = True
         self.elements_x = 10
-        self.elements_y = 200
-        self.show_shortcuts_window = False
-        self.shortcuts_x = 10
-        self.shortcuts_y = 400
+        self.elements_y = 30
+
+        # self.collapseShortcutsWindow = True
+        # self.show_shortcuts_window = False
+        # self.shortcuts_x = 10
+        # self.shortcuts_y = 400
 
         self.graph_x = 560
         self.graph_y = 30
@@ -434,7 +436,6 @@ class ImGUIDecorator(RenderDecorator):
         self.openWindows = [] 
 
         self.collapseElementsWindow = True
-        self.collapseShortcutsWindow = True
         self.collapseScenegraphVisualizer = True
 
 
@@ -481,9 +482,7 @@ class ImGUIDecorator(RenderDecorator):
         self.extra()
         #draw menu bar as a header
         self.menuBar()
-        #draw shortcuts gui
-        self.shortcutsGUI()
-                #draw scenegraph tree widget
+        #draw scenegraph tree widget
         self.scenegraphVisualiser()
 
         #print(f'{self.getClassName()}: display()')
@@ -626,60 +625,19 @@ class ImGUIDecorator(RenderDecorator):
 
         starting_y += 20
 
-        if self.show_shortcuts_window:
-            self.shortcuts_x = 10
-            self.shortcuts_y = starting_y
+        if Shortcuts.show_shortcuts_window:
+            Shortcuts.shortcuts_x = 10
+            Shortcuts.shortcuts_y = starting_y
             starting_y += 20
-
+        if Shortcuts.showGUI_text:
+            Shortcuts.GUItext_x = 10
+            Shortcuts.GUItext_y = starting_y
+            starting_y += 20
         self.graph_x = 10
         self.graph_y = starting_y
+
         
-
-
-
-    def shortcutsGUI(self):
-        if self.show_shortcuts_window:
-            imgui.core.set_next_window_collapsed(not self.collapseShortcutsWindow)
-            self.collapseShortcutsWindow, self.show_shortcuts_window = imgui.begin("Shortcuts", True)
-            if "Shortcuts" not in self.openWindows:
-                self.openWindows.append("Shortcuts")
-
-            ###### do this so we can be able to move the window after it was collapsed #########
-            #######                         and we re open it                           #########
-            if self.collapseShortcutsWindow:
-                imgui.set_window_position(self.shortcuts_x,self.shortcuts_y,imgui.ONCE)
-            else:
-                imgui.set_window_position(self.shortcuts_x,self.shortcuts_y)
-
-            imgui.text("List of shortcuts:")
-            
-            imgui.bullet_text("Toggle Wireframe                 Alt+F")
-            imgui.bullet_text("Vertical Scroll:                 Vertical camera translate")
-            imgui.bullet_text("Horizontal Scroll:               Vertical camera translate")
-            
-            imgui.text("When node is selected:")
-            #with imgui.indent():
-            imgui.bullet_text("Positive translation on x-axis   W")
-            imgui.bullet_text("Negative translation on x-axis   Alt+W")
-            imgui.bullet_text("Positive translation on y-axis   E")
-            imgui.bullet_text("Negative translation on y-axis   Alt+E")
-            imgui.bullet_text("Positive translation on z-axis   R")
-            imgui.bullet_text("Negative translation on z-axis   Alt+R")
-
-            imgui.bullet_text("Positive rotation on x-axis      T")
-            imgui.bullet_text("Negative rotation on x-axis      Alt+T")
-            imgui.bullet_text("Positive rotation on y-axis      Y")
-            imgui.bullet_text("Negative rotation on y-axis      Alt+Y")
-            imgui.bullet_text("Positive rotation on z-axis      U")
-            imgui.bullet_text("Negative rotation on z-axis      Alt+U")
-
-            imgui.bullet_text("Scale up on x-axis               I")
-            imgui.bullet_text("Scale down on x-axis             Alt+I")
-            imgui.bullet_text("Scale up on y-axis               O")
-            imgui.bullet_text("Scale down on y-axis             Alt+O")
-            imgui.bullet_text("Scale up on z-axis               P")
-            imgui.bullet_text("Scale down on z-axis             Alt+P")
-            imgui.end()
+        
     ######  MENU BAR #########
     def menuBar(self):
         # Create the header bar
@@ -703,14 +661,28 @@ class ImGUIDecorator(RenderDecorator):
         if imgui.begin_menu("View"):
             # Add a "Shortcuts" submenu
             if imgui.menu_item("Shortcuts")[1]:
-                self.show_shortcuts_window = True   
+                Shortcuts.show_shortcuts_window = True   
+                Shortcuts.displayShortcutsGUI()
             if imgui.menu_item("Elements ImGUI Window")[1]:
                 self.showElementsWindow = True           
             if imgui.menu_item("Collapse Windows")[1]:
                 self.collapseElementsWindow = False
-                self.collapseShortcutsWindow = False
+                Shortcuts.collapseShortcutsWindow = False
+                Shortcuts.displayShortcutsGUI()
+                Shortcuts.collapseGUI_text = False
                 self.collapseScenegraphVisualizer = False
                 self.align_windows_bottom_left()
+            imgui.end_menu()
+
+        # Create the "Help" dropdown menu
+        if imgui.begin_menu("Help"):
+            # Add a "Shortcuts" submenu
+            if imgui.menu_item("Example Description")[1]:
+                Shortcuts.showGUI_text = True   
+                Shortcuts.show_shortcuts_window = True   
+
+            if imgui.menu_item("FAQ")[1]:
+                pass
             imgui.end_menu()
         # End the main menu bar
         imgui.end_main_menu_bar()
